@@ -1,0 +1,161 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------- Enums ----------
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+// ---------- Models ----------
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  passwordHash    String
+  emailVerifiedAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  business Business?
+
+  @@map("users")
+}
+
+model Business {
+  id        String   @id @default(uuid())
+  ownerId   String   @unique
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name      String
+  phone     String?
+  address   String?
+  currency  String   @default("NGN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clients  Client[]
+  invoices Invoice[]
+
+  @@map("businesses")
+}
+
+model Client {
+  id         String    @id @default(uuid())
+  businessId String
+  business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name       String
+  email      String
+  phone      String?
+  deletedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  invoices Invoice[]
+
+  // The same client email can exist for two different businesses, but not
+  // twice for the SAME business.
+  @@unique([businessId, email])
+  @@index([businessId])
+  @@map("clients")
+}
+
+model Invoice {
+  id         String   @id @default(uuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  clientId   String
+  client     Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  number   String
+  status   InvoiceStatus @default(DRAFT)
+  currency String        @default("NGN")
+
+  // All money fields are integers in the smallest unit (kobo). Never floats.
+  subtotal       Int
+  taxAmount      Int @default(0)
+  discountAmount Int @default(0)
+  total          Int
+
+  issueDate DateTime
+  dueDate   DateTime
+
+  publicToken String @unique @default(uuid())
+
+  sentAt      DateTime?
+  viewedAt    DateTime?
+  paidAt      DateTime?
+  cancelledAt DateTime?
+
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items    InvoiceItem[]
+  payments Payment[]
+
+  // Invoice numbers (e.g. INV-0001) must be unique per business, not globally.
+  @@unique([businessId, number])
+  @@index([businessId, status])
+  @@index([clientId])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          String  @id @default(uuid())
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Int
+  unitPrice   Int // kobo
+  lineTotal   Int // kobo, quantity * unitPrice, calculated by the server
+
+  @@index([invoiceId])
+  @@map("invoice_items")
+}
+
+model Payment {
+  id                    String        @id @default(uuid())
+  invoiceId             String
+  invoice               Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  amount                Int // kobo
+  currency              String
+  status                PaymentStatus @default(PENDING)
+  reference             String        @unique
+  providerTransactionId String?
+  paidAt                DateTime?
+  createdAt             DateTime      @default(now())
+
+  @@index([invoiceId])
+  @@map("payments")
+}
+
+model WebhookEvent {
+  id          String    @id @default(uuid())
+  provider    String
+  eventId     String
+  type        String
+  payload     Json
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  // The core of idempotency: the database itself refuses a duplicate event ID
+  // from the same provider, even if two requests arrive at the exact same time.
+  @@unique([provider, eventId])
+  @@map("webhook_events")
+}
