@@ -6,6 +6,7 @@ dotenv.config({ quiet: true });
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().default(4000),
+  DATABASE_URL: z.url("DATABASE_URL must be a valid connection string"),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
   CORS_ORIGIGIN: z
     .string()
