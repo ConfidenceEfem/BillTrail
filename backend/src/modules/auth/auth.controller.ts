@@ -1,6 +1,6 @@
 import type { RequestHandler } from "express";
-import { loginSchema, registerSchema, verifyEmailSchema, refreshSchema } from "./auth.validation";
-import { getCurrentUser, login, registerBusiness, verifyEmail,rotateRefreshToken,revokeRefreshToken } from "./auth.service";
+import { loginSchema, registerSchema, verifyEmailSchema, refreshSchema, resetPasswordSchema, requestPasswordResetSchema } from "./auth.validation";
+import { getCurrentUser, login, registerBusiness, verifyEmail,rotateRefreshToken,revokeRefreshToken, resetPassword, requestPasswordReset } from "./auth.service";
 import { logger } from "../../config/logger";
 
 export const register: RequestHandler = async (req, res) => {
@@ -47,4 +47,25 @@ export const logoutHandler: RequestHandler = async (req, res) => {
   const input = refreshSchema.parse(req.body);
   await revokeRefreshToken(input.refreshToken);
   res.status(200).json({ data: { message: "Logged out" } });
+};
+
+export const requestPasswordResetHandler: RequestHandler = async (req, res) => {
+  const input = requestPasswordResetSchema.parse(req.body);
+  const rawToken = await requestPasswordReset(input.email);
+
+  if (rawToken) {
+    logger.info(
+      { resetLink: `http://localhost:5173/reset-password?token=${rawToken}` },
+      "Password reset link (dev only)",
+    );
+  }
+
+  // Same response whether or not the account exists.
+  res.status(200).json({ data: { message: "If that email exists, a reset link has been sent" } });
+};
+
+export const resetPasswordHandler: RequestHandler = async (req, res) => {
+  const input = resetPasswordSchema.parse(req.body);
+  await resetPassword(input.token, input.newPassword);
+  res.status(200).json({ data: { message: "Password reset successfully" } });
 };

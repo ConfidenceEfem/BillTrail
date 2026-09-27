@@ -11,6 +11,8 @@ const BCRYPT_SALT_ROUNDS = env.NODE_ENV === "test" ? 4 : 12;
 const EMAIL_VERIFICATION_EXPIRY_MS = 24 * 60 * 60 * 1000; 
 const REFRESH_TOKEN_TTL_MS = ms(env.JWT_REFRESH_EXPIRES_IN as ms.StringValue);
 
+const PASSWORD_RESET_EXPIRY_MS = 30 * 60 * 1000; 
+
 export async function registerBusiness (e: RegisterInput) {
   const existing = await prisma.user.findUnique({
     where: {email: e.email},
@@ -180,4 +182,53 @@ export async function revokeRefreshToken(rawToken: string) {
     where: { tokenHash, revokedAt: null },
     data: { revokedAt: new Date() },
   });
+}
+
+
+
+export async function requestPasswordReset(email: string) {
+  const user = await prisma.user.findUnique({ where: { email }, select: { id: true } });
+
+  if (!user) return null;
+
+  const rawToken = generateRawToken();
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      passwordResetTokenHash: hashToken(rawToken),
+      passwordResetExpiresAt: new Date(Date.now() + PASSWORD_RESET_EXPIRY_MS),
+    },
+  });
+
+  return rawToken;
+}
+
+export async function resetPassword(rawToken: string, newPassword: string) {
+  const tokenHash = hashToken(rawToken);
+  const user = await prisma.user.findFirst({
+    where: { passwordResetTokenHash: tokenHash },
+    select: { id: true, passwordResetExpiresAt: true },
+  });
+
+  if (!user || !user.passwordResetExpiresAt || user.passwordResetExpiresAt < new Date()) {
+    throw new BadRequestError("This reset link is invalid or has expired");
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
+
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash,
+        passwordResetTokenHash: null,
+        passwordResetExpiresAt: null,
+      },
+    }),
+
+    prisma.refreshToken.updateMany({
+      where: { userId: user.id, revokedAt: null },
+      data: { revokedAt: new Date() },
+    }),
+  ]);
 }

@@ -12,6 +12,19 @@ function uniqueEmail() {
   return `test-${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`;
 }
 
+
+
+async function createVerifiedUser(password = "supersecret123") {
+  const email = uniqueEmail();
+  const { verificationToken } = await registerBusiness({
+    businessName: "Login Test Co",
+    email,
+    password,
+  });
+  await verifyEmail(verificationToken);
+  return email;
+}
+
 describe("POST /api/v1/auth/register", () => {
   it("creates a user and business, and never returns the password hash", async () => {
     const email = uniqueEmail();
@@ -130,17 +143,7 @@ describe("GET /api/v1/auth/verify-email", () => {
 });
 
 describe("POST /api/v1/auth/login", () => {
-  async function createVerifiedUser(password = "supersecret123") {
-    const email = uniqueEmail();
-    const { verificationToken } = await registerBusiness({
-      businessName: "Login Test Co",
-      email,
-      password,
-    });
-    await verifyEmail(verificationToken);
-    return email;
-  }
-
+  
   it("logs in a verified user and returns both tokens", async () => {
     const email = await createVerifiedUser("supersecret123");
 
@@ -246,5 +249,80 @@ describe("GET /api/v1/auth/me", () => {
     expect(res.body.data.email).toBe(email);
     expect(res.body.data.business.name).toBe("Login Test Co");
     expect(res.body.data.passwordHash).toBeUndefined();
+  });
+});
+
+describe("POST /api/v1/auth/refresh", () => {
+  it("issues a new token pair and revokes the old refresh token", async () => {
+    const email = await createVerifiedUser("supersecret123");
+    const loginRes = await request(app)
+      .post("/api/v1/auth/login")
+      .send({ email, password: "supersecret123" });
+    const oldRefreshToken = loginRes.body.data.refreshToken;
+
+    const refreshRes = await request(app)
+      .post("/api/v1/auth/refresh")
+      .send({ refreshToken: oldRefreshToken });
+
+    expect(refreshRes.status).toBe(200);
+    expect(typeof refreshRes.body.data.accessToken).toBe("string");
+    expect(typeof refreshRes.body.data.refreshToken).toBe("string");
+    expect(refreshRes.body.data.refreshToken).not.toBe(oldRefreshToken);
+
+    // The old token must now be dead — this is the actual security property
+    // rotation exists to guarantee, not just "a new token was returned".
+    const reuse = await request(app)
+      .post("/api/v1/auth/refresh")
+      .send({ refreshToken: oldRefreshToken });
+
+    expect(reuse.status).toBe(401);
+  });
+
+  it("rejects a refresh token that never existed", async () => {
+    const res = await request(app)
+      .post("/api/v1/auth/refresh")
+      .send({ refreshToken: "this-was-never-issued" });
+
+    expect(res.status).toBe(401);
+    expect(res.body.error.message).toBe("Invalid or expired refresh token");
+  });
+
+  it("rejects an access token used where a refresh token is expected", async () => {
+    const email = await createVerifiedUser("supersecret123");
+    const loginRes = await request(app)
+      .post("/api/v1/auth/login")
+      .send({ email, password: "supersecret123" });
+
+    // An access token is a JWT, not a raw hex token, and it was never stored
+    // in the refresh_tokens table at all — the lookup simply finds nothing.
+    const res = await request(app)
+      .post("/api/v1/auth/refresh")
+      .send({ refreshToken: loginRes.body.data.accessToken });
+
+    expect(res.status).toBe(401);
+  });
+});
+
+describe("POST /api/v1/auth/logout", () => {
+  it("revokes the refresh token so it can no longer be used", async () => {
+    const email = await createVerifiedUser("supersecret123");
+    const loginRes = await request(app)
+      .post("/api/v1/auth/login")
+      .send({ email, password: "supersecret123" });
+    const refreshToken = loginRes.body.data.refreshToken;
+
+    const logoutRes = await request(app).post("/api/v1/auth/logout").send({ refreshToken });
+    expect(logoutRes.status).toBe(200);
+
+    const afterLogout = await request(app).post("/api/v1/auth/refresh").send({ refreshToken });
+    expect(afterLogout.status).toBe(401);
+  });
+
+  it("succeeds quietly even for a token that doesn't exist", async () => {
+    const res = await request(app)
+      .post("/api/v1/auth/logout")
+      .send({ refreshToken: "never-issued-token" });
+
+    expect(res.status).toBe(200);
   });
 });

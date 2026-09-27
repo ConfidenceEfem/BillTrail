@@ -36,6 +36,6 @@ describe("error handling", () => {
   });
 });
 
-beforeAll(async () => {
-  await prisma.$queryRaw`SELECT 1`;
-}, 20_000);
+// beforeAll(async () => {
+//   await prisma.$queryRaw`SELECT 1`;
+// }, 20_000);
