@@ -11,8 +11,8 @@ Paste this file at the start of every mentoring session so we never lose context
 
 ## Backend build order
 - [x] Step 1: Server foundation (config, logger, error handling, health route, tests)
-- [ ] Step 2: Database and Prisma schema
-- [ ] Step 3: Authentication (register, verify email, login, refresh, logout, reset password)
+- [X] Step 2: Database and Prisma schema
+- [X] Step 3: Authentication (register, verify email, login, refresh, logout, reset password)
 - [ ] Step 4: Shared middleware (authenticate, authorize, validate, rate limit)
 - [ ] Step 5: Business and clients module
 - [ ] Step 6: Invoices module (money calculation, status rules)
@@ -22,4 +22,6 @@ Paste this file at the start of every mentoring session so we never lose context
 - [ ] Step 10: Tests, Docker, CI, deployment
 
 ## Notes and questions
-(Write what confused you here.)
+So right now i actually understand how the whole auth thing works. from the signup, to the login to the authentication. 
+what still confuses me is the testing,because the code works properly but when a test is run, it fails regardless. why is it this way, and explain ? also the essesnce of the testing. 
+please move to the next step of the project. 

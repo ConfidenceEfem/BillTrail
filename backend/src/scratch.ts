@@ -1,15 +1,26 @@
-import { logger } from "./config/logger";
-import { AppError, NotFoundError } from "./lib/errors";
+import { registerBusiness } from "./modules/auth/auth.service";
+import { registerSchema } from "./modules/auth/auth.validation";
+import { prisma } from "./lib/prisma";
 
-const error = new NotFoundError("Invoice not found");
+async function main() {
+  const input = registerSchema.parse({
+    businessName: "Ada Designs",
+    email: `ada+${Date.now()}@example.com`, // unique each run, so you can re-run this freely
+    password: "supersecret123",
+  });
 
-logger.info(
-  {
-    isAppError: error instanceof AppError,
-    isError: error instanceof Error,
-    name: error.name,
-    statusCode: error.statusCode,
-    code: error.code,
-  },
-  error.message,
-);
+  const user = await registerBusiness(input);
+  console.log("created:", user);
+
+  // Try registering the SAME email again, to confirm the duplicate check works.
+  try {
+    await registerBusiness(input);
+    console.log("ERROR: duplicate registration did not throw!");
+  } catch (err) {
+    console.log("duplicate correctly rejected:", (err as Error).message);
+  }
+}
+
+main()
+  .catch((err) => console.error(err))
+  .finally(() => prisma.$disconnect());

@@ -1,8 +1,11 @@
 import request from "supertest";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, beforeAll } from "vitest";
 import { createApp } from "../src/app";
+import {prisma} from "../src/lib/prisma"
 
 const app = createApp();
+
+
 
 describe("health", () => {
   it("GET /api/v1/health returns ok", async () => {
@@ -32,3 +35,7 @@ describe("error handling", () => {
     expect(res.body.error.code).toBe("BAD_REQUEST");
   });
 });
+
+beforeAll(async () => {
+  await prisma.$queryRaw`SELECT 1`;
+}, 20_000);
