@@ -11,7 +11,8 @@ const envSchema = z.object({
   JWT_ACCESS_EXPIRES_IN: z.string().default("15m"),
 JWT_REFRESH_EXPIRES_IN: z.string().default("30d"),
   DATABASE_URL: z.url("DATABASE_URL must be a valid connection string"),
-
+ PAYSTACK_SECRET_KEY: z.string().min(1, "PAYSTACK_SECRET_KEY is required"),
+FRONTEND_URL: z.string().url().default("http://localhost:5173"),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
   CORS_ORIGIGIN: z
     .string()

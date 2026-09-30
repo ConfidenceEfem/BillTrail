@@ -11,6 +11,8 @@ import { errorHandler } from "./middleware/error-handler";
 import authRouter from "./modules/auth/auth.routes";
 import clientRouter from "./modules/clients/clients.routes";
 import { invoicesRouter } from "./modules/invoices/invoices.routes";
+import { publicRouter } from "./modules/public/public.routes";
+import { webhooksRouter } from "./modules/webhooks/webhooks.routes";
 
 export function createApp() {
   const app = express();
@@ -39,11 +41,13 @@ export function createApp() {
     }),
   );
 
-  app.use(express.json({ limit: "100kb" }));
+app.use("/api/v1/webhooks", express.raw({ type: "application/json" }), webhooksRouter);
+app.use(express.json({ limit: "100kb" }));
   app.use("/api/v1/health", healthRouter);
   app.use("/api/v1/auth", authRouter)
   app.use("/api/v1/clients", clientRouter)
   app.use("/api/v1/invoices", invoicesRouter)
+  app.use("/api/v1/public", publicRouter);
 
   app.use(notFound);
   app.use(errorHandler);
