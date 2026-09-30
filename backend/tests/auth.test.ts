@@ -6,8 +6,7 @@ import { registerBusiness, verifyEmail } from "../src/modules/auth/auth.service"
 
 const app = createApp();
 
-// A fresh, random email per test run, so re-running the suite never collides
-// with leftover data from a previous run.
+
 function uniqueEmail() {
   return `test-${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`;
 }

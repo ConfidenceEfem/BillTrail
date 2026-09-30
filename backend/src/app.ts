@@ -10,6 +10,7 @@ import { notFound } from "./middleware/not-found";
 import { errorHandler } from "./middleware/error-handler";
 import authRouter from "./modules/auth/auth.routes";
 import clientRouter from "./modules/clients/clients.routes";
+import { invoicesRouter } from "./modules/invoices/invoices.routes";
 
 export function createApp() {
   const app = express();
@@ -42,6 +43,7 @@ export function createApp() {
   app.use("/api/v1/health", healthRouter);
   app.use("/api/v1/auth", authRouter)
   app.use("/api/v1/clients", clientRouter)
+  app.use("/api/v1/invoices", invoicesRouter)
 
   app.use(notFound);
   app.use(errorHandler);

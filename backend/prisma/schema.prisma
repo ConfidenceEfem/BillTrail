@@ -107,6 +107,7 @@ model Invoice {
 
   // All money fields are integers in the smallest unit (kobo). Never floats.
   subtotal       Int
+  taxRateBps     Int @default(0)
   taxAmount      Int @default(0)
   discountAmount Int @default(0)
   total          Int
