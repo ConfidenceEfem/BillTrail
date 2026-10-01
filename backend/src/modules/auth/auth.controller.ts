@@ -2,16 +2,28 @@ import type { RequestHandler } from "express";
 import { loginSchema, registerSchema, verifyEmailSchema, refreshSchema, resetPasswordSchema, requestPasswordResetSchema } from "./auth.validation";
 import { getCurrentUser, login, registerBusiness, verifyEmail,rotateRefreshToken,revokeRefreshToken, resetPassword, requestPasswordReset } from "./auth.service";
 import { logger } from "../../config/logger";
+import { sendEmail } from "../../lib/email";
+import { passwordResetEmailHtml, verificationEmailHtml } from "../../lib/email-templates";
+import { env } from "../../config/env";
 
 export const register: RequestHandler = async (req, res) => {
   const input = registerSchema.parse(req.body);
 
   const { user, verificationToken } = await registerBusiness(input);
 
+
+  const verifyUrl = `${env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+
   logger.info(
-    { verificationLink: `http://localhost:5173/verify-email?token=${verificationToken}` },
+    { verificationLink: verifyUrl },
     "Email verification link (dev only)",
   );
+
+   await sendEmail({
+    to: user.email,
+    subject: "Verify your BillTrail account",
+    html: verificationEmailHtml(verifyUrl),
+  });
 
   res.status(201).json({ data: user });
 };
@@ -53,15 +65,23 @@ export const requestPasswordResetHandler: RequestHandler = async (req, res) => {
   const input = requestPasswordResetSchema.parse(req.body);
   const rawToken = await requestPasswordReset(input.email);
 
+
+  const resetLink = `${env.FRONTEND_URL}/reset-password?token=${rawToken}`;
+
   if (rawToken) {
     logger.info(
-      { resetLink: `http://localhost:5173/reset-password?token=${rawToken}` },
+      { resetLink:resetLink },
       "Password reset link (dev only)",
     );
   }
 
-  // Same response whether or not the account exists.
-  res.status(200).json({ data: { message: "If that email exists, a reset link has been sent" } });
+  await sendEmail({
+    to: input.email,
+    subject: "Reset Password on your BillTrail account",
+    html: passwordResetEmailHtml(resetLink),
+  })
+
+  res.status(200).json({ data: { message: "Reset Link has been set to email" } });
 };
 
 export const resetPasswordHandler: RequestHandler = async (req, res) => {

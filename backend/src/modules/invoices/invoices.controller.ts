@@ -14,6 +14,12 @@ import {
   sendInvoice,
   updateInvoice,
 } from "./invoices.service";
+import { sendEmail } from "../../lib/email";
+import { prisma } from "../../lib/prisma";
+import { env } from "../../config/env";
+import { invoiceSentEmailHtml } from "../../lib/email-templates";
+import { formatKobo } from "../../lib/money";
+import { logger } from "../../config/logger";
 
 export const create: RequestHandler = async (req, res) => {
   const input = createInvoiceSchema.parse(req.body);
@@ -52,6 +58,27 @@ export const remove: RequestHandler = async (req, res) => {
 export const send: RequestHandler = async (req, res) => {
   const { id } = invoiceIdParamSchema.parse(req.params);
   const invoice = await sendInvoice(req.user!.businessId, id);
+
+  const business = await prisma.business.findUniqueOrThrow({ where: { id: req.user!.businessId } });
+  const payUrl = `${env.FRONTEND_URL}/pay/${invoice.publicToken}`;
+
+  await sendEmail({
+    to: invoice.client.email,
+    subject: `Invoice ${invoice.number} from ${business.name}`,
+    html: invoiceSentEmailHtml({
+      businessName: business.name,
+      invoiceNumber: invoice.number,
+      totalFormatted: formatKobo(invoice.total, invoice.currency),
+      dueDateFormatted: invoice.dueDate.toLocaleDateString("en-NG", { dateStyle: "long" }),
+      payUrl,
+    }),
+  });
+
+   logger.info(
+      { verificationLink: payUrl },
+      "Sending invoice link (dev only)",
+    );
+
   res.status(200).json({ data: invoice });
 };
 

@@ -83,6 +83,17 @@ describe("POST /api/v1/auth/register", () => {
     // was never written. This assertion documents that intent explicitly.
     expect(stored).not.toHaveProperty("isAdmin");
   });
+
+  it("still succeeds even if email sending fails, in production mode", async () => {
+  const email = uniqueEmail();
+  const res = await request(app).post("/api/v1/auth/register").send({
+    businessName: "Email Safety Co",
+    email,
+    password: "supersecret123",
+  });
+
+  expect(res.status).toBe(201);
+});
 });
 
 describe("GET /api/v1/auth/verify-email", () => {
