@@ -36,3 +36,16 @@ export async function resetPassword(payload: { token: string; newPassword: strin
   const { data } = await api.post("/auth/reset-password", payload);
   return data.data;
 }
+
+
+export type DashboardSummary = {
+  totalRevenue: number;
+  outstanding: number;
+  overdueAmount: number;
+  overdueCount: number;
+};
+
+export async function getDashboardSummary() {
+  const { data } = await api.get("/dashboard/summary");
+  return data.data as DashboardSummary;
+}
