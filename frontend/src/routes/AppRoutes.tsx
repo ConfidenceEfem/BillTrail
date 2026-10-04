@@ -9,6 +9,13 @@ import { AppShell } from "../components/AppShell"
 import { VerifyEmailPage } from "../pages/VerfiyEmailPage"
 import { ForgotPasswordPage } from "../pages/ForgetPasswordPage"
 import { ResetPasswordPage } from "../pages/ResetPasswordPage"
+import { InvoiceDetailPage } from "../pages/InvoiceDetailPage"
+
+import { PublicInvoicePage } from "../pages/PublicInvoicePage";
+import { PaymentCompletePage } from "../pages/PaymentCompletePage";
+
+// ...inside <Routes>, outside the RequireAuth/AppShell nesting:
+
 
 export const AppRoutes = () => {
     return (
@@ -19,17 +26,21 @@ export const AppRoutes = () => {
             <Route path="/verify-email" element={<VerifyEmailPage />} />
 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 <Route path="/reset-password" element={<ResetPasswordPage />} />
+<Route path="/pay/:token" element={<PublicInvoicePage />} />
+<Route path="/pay/:token/complete" element={<PaymentCompletePage />} />
 
             <Route element={<RequireAuth/>}>
                <Route element={<AppShell/>}>
                  <Route element={<InvoicesPage/>} path="/invoices"/>
                 <Route element={<DashboardPage/>} path="/dashboard"/>
                 <Route element={<ClientsPage/>} path="/clients"/>
+                <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
 
 
                 <Route element={<Navigate to="/dashboard" replace/>} path="*"/>
                </Route>
             </Route>
+
         </Routes>
     )
 }
