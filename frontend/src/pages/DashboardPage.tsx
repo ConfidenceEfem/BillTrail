@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { getDashboardSummary } from "../api/auth";
-import { formatKobo } from "../lib/money";
 import { MetricCard } from "../components/MetricCard";
 
 
