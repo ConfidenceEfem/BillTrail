@@ -17,7 +17,9 @@ billtrail/
 cd backend
 cp .env.example .env
 npm install
-npm run dev        # http://localhost:4000/api/v1/health
+npm run dev        # https://billtrail-api.onrender.com/api/v1/health
 ```
 
 Other scripts: `npm test`, `npm run lint`, `npm run typecheck`, `npm run build`.
+
+![Backend CI](https://github.com/confidenceefem/billtrail/actions/workflows/backend-ci.yml/badge.svg)
