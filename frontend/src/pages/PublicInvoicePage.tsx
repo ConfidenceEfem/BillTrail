@@ -4,6 +4,8 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { getPublicInvoice, payPublicInvoice } from "../api/public";
 import { formatKobo } from "../lib/money";
 import { getErrorMessage } from "../lib/error";
+import { downloadPublicInvoicePdf } from "../api/public";
+import { toast } from "sonner";
 
 export function PublicInvoicePage() {
   const { token } = useParams<{ token: string }>();
@@ -18,12 +20,23 @@ export function PublicInvoicePage() {
   const payMutation = useMutation({
     mutationFn: () => payPublicInvoice(token!),
     onSuccess: (data) => {
-      // A full browser redirect, not client-side routing — the client is
-      // leaving BillTrail entirely to pay on Paystack's own hosted page.
       window.location.href = data.checkoutUrl;
     },
     onError: (error) => setErrorMessage(getErrorMessage(error)),
   });
+
+  const [isDownloading, setIsDownloading] = useState(false);
+
+async function handleDownload() {
+  setIsDownloading(true);
+  try {
+    await downloadPublicInvoicePdf(token!, invoice!.number);
+  } catch {
+    toast.error("Couldn't download the PDF. Try again.");
+  } finally {
+    setIsDownloading(false);
+  }
+}
 
   if (isLoading) {
     return (
@@ -95,6 +108,13 @@ export function PublicInvoicePage() {
             </button>
           </>
         )}
+        <button
+  onClick={handleDownload}
+  disabled={isDownloading}
+  className="w-full border border-gray-300 text-gray-700 rounded-lg py-2.5 text-sm font-medium hover:bg-gray-50 disabled:opacity-50 mt-3"
+>
+  {isDownloading ? "Downloading..." : "Download PDF"}
+</button>
       </div>
     </div>
   );

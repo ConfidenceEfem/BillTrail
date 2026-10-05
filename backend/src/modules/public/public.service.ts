@@ -3,6 +3,8 @@ import { BadRequestError, NotFoundError } from "../../lib/errors";
 import { initializePaystackTransaction } from "../../lib/paystack";
 import { env } from "../../config/env";
 import { randomUUID } from "node:crypto";
+import { generateInvoicePdf } from "../../lib/invoice-pdf";
+
 
 export async function getInvoiceByPublicToken(token: string) {
   const invoice = await prisma.invoice.findUnique({
@@ -65,4 +67,32 @@ export async function initiateInvoicePayment(token: string) {
   });
 
   return { checkoutUrl: authorization_url };
+}
+
+
+export async function getPublicInvoicePdf(token: string) {
+  const invoice = await prisma.invoice.findUnique({
+    where: { publicToken: token },
+    include: { items: true, business: { select: { name: true, phone: true, address: true } }, client: { select: { name: true, email: true } } },
+  });
+
+  if (!invoice || invoice.status === "DRAFT") {
+    throw new NotFoundError("Invoice not found");
+  }
+
+  return generateInvoicePdf({
+    number: invoice.number,
+    issueDate: invoice.issueDate,
+    dueDate: invoice.dueDate,
+    status: invoice.status,
+    currency: invoice.currency,
+    subtotal: invoice.subtotal,
+    taxAmount: invoice.taxAmount,
+    discountAmount: invoice.discountAmount,
+    total: invoice.total,
+    notes: invoice.notes,
+    business: invoice.business,
+    client: invoice.client,
+    items: invoice.items,
+  });
 }

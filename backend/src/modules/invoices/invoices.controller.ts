@@ -20,6 +20,8 @@ import { env } from "../../config/env";
 import { invoiceSentEmailHtml } from "../../lib/email-templates";
 import { formatKobo } from "../../lib/money";
 import { logger } from "../../config/logger";
+import { getInvoicePdf } from "./invoices.service";
+
 
 export const create: RequestHandler = async (req, res) => {
   const input = createInvoiceSchema.parse(req.body);
@@ -86,4 +88,14 @@ export const cancel: RequestHandler = async (req, res) => {
   const { id } = invoiceIdParamSchema.parse(req.params);
   const invoice = await cancelInvoice(req.user!.businessId, id);
   res.status(200).json({ data: invoice });
+};
+
+
+export const downloadPdf: RequestHandler = async (req, res) => {
+  const { id } = invoiceIdParamSchema.parse(req.params);
+  const pdfBuffer = await getInvoicePdf(req.user!.businessId, id);
+
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `attachment; filename="invoice.pdf"`);
+  res.send(pdfBuffer);
 };

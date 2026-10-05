@@ -1,4 +1,5 @@
 import { api } from "../lib/api";
+import { triggerBrowserDownload } from "../lib/download";
 
 export type PublicInvoice = {
   number: string;
@@ -23,4 +24,9 @@ export async function payPublicInvoice(token: string) {
   void data;
   const res = await api.post(`/public/invoices/${token}/pay`);
   return res.data.data as { checkoutUrl: string };
+}
+
+export async function downloadPublicInvoicePdf(token: string, invoiceNumber: string) {
+  const response = await api.get(`/public/invoices/${token}/pdf`, { responseType: "blob" });
+  triggerBrowserDownload(response.data, `${invoiceNumber}.pdf`);
 }

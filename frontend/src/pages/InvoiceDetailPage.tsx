@@ -6,11 +6,14 @@ import { StatusBadge } from "../components/StatusBadge";
 import { formatKobo } from "../lib/money";
 import { getErrorMessage } from "../lib/error";
 import { toast } from "sonner";
+import { downloadInvoicePdf } from "../api/invoices";
 
 export function InvoiceDetailPage() {
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
+
 
   const { data: invoice, isLoading, isError } = useQuery({
     queryKey: ["invoice", id],
@@ -48,6 +51,19 @@ export function InvoiceDetailPage() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
+
+
+
+async function handleDownload() {
+  setIsDownloading(true);
+  try {
+    await downloadInvoicePdf(invoice!.id, invoice!.number);
+  } catch {
+    toast.error("Couldn't download the PDF. Try again.");
+  } finally {
+    setIsDownloading(false);
+  }
+}
 
   return (
     <div className="max-w-xl">
@@ -130,6 +146,13 @@ export function InvoiceDetailPage() {
             </button>
           )}
         </div>
+        <button
+  onClick={handleDownload}
+  disabled={isDownloading}
+  className="border border-gray-300 text-gray-700 rounded-lg px-4 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+>
+  {isDownloading ? "Downloading..." : "Download PDF"}
+</button>
 
         {(sendMutation.isError || cancelMutation.isError) && (
           <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2 mt-4">

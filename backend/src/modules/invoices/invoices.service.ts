@@ -2,6 +2,8 @@ import { prisma } from "../../lib/prisma";
 import { BadRequestError, ConflictError, NotFoundError } from "../../lib/errors";
 import { calculateInvoiceTotals } from "./invoice-math";
 import type { CreateInvoiceInput, ListInvoicesQuery, UpdateInvoiceInput } from "./invoices.validation";
+import { generateInvoicePdf } from "../../lib/invoice-pdf";
+
 
 const MAX_NUMBER_RETRIES = 5;
 
@@ -172,5 +174,31 @@ export async function cancelInvoice(businessId: string, invoiceId: string) {
     where: { id: invoiceId },
     data: { status: "CANCELLED", cancelledAt: new Date() },
     include: { items: true, client: { select: { id: true, name: true, email: true } } },
+  });
+}
+
+
+
+export async function getInvoicePdf(businessId: string, invoiceId: string) {
+  const invoice = await getOwnedInvoiceOrThrow(businessId, invoiceId);
+  const business = await prisma.business.findUniqueOrThrow({
+    where: { id: businessId },
+    select: { name: true, phone: true, address: true },
+  });
+
+  return generateInvoicePdf({
+    number: invoice.number,
+    issueDate: invoice.issueDate,
+    dueDate: invoice.dueDate,
+    status: invoice.status,
+    currency: invoice.currency,
+    subtotal: invoice.subtotal,
+    taxAmount: invoice.taxAmount,
+    discountAmount: invoice.discountAmount,
+    total: invoice.total,
+    notes: invoice.notes,
+    business,
+    client: { name: invoice.client.name, email: invoice.client.email },
+    items: invoice.items,
   });
 }

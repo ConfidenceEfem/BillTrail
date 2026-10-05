@@ -1,4 +1,5 @@
 import { api } from "../lib/api";
+import { triggerBrowserDownload } from "../lib/download";
 
 export type InvoiceStatus = "DRAFT" | "SENT" | "PAID" | "CANCELLED";
 
@@ -53,4 +54,9 @@ export async function sendInvoice(id: string) {
 export async function cancelInvoice(id: string) {
   const { data } = await api.post(`/invoices/${id}/cancel`);
   return data.data as InvoiceDetail;
+}
+
+export async function downloadInvoicePdf(id: string, invoiceNumber: string) {
+  const response = await api.get(`/invoices/${id}/pdf`, { responseType: "blob" });
+  triggerBrowserDownload(response.data, `${invoiceNumber}.pdf`);
 }
