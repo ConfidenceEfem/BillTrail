@@ -6,8 +6,8 @@ Invoicing and online payments for small businesses, built with Paystack.
 
 ```
 billtrail/
-  backend/    Node + TypeScript API (deployed on its own)
-  frontend/   React app (added later, deployed on its own)
+  backend/    Node + TypeScript API 
+  frontend/   React app 
   docs/       DESIGN.md, PROGRESS.md
 ```
 
