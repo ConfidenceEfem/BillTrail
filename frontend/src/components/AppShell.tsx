@@ -5,6 +5,7 @@ const navItems = [
   { to: "/dashboard", label: "Dashboard" },
   { to: "/clients", label: "Clients" },
   { to: "/invoices", label: "Invoices" },
+  { to: "/settings", label: "Settings" },
 ];
 
 export function AppShell() {
@@ -37,7 +38,7 @@ export function AppShell() {
         </button>
       </aside>
       <main className="flex-1 p-8">
-        {/* Outlet renders whichever protected page matched the current route */}
+   
         <Outlet />
       </main>
     </div>

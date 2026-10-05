@@ -13,13 +13,17 @@ import { InvoiceDetailPage } from "../pages/InvoiceDetailPage"
 
 import { PublicInvoicePage } from "../pages/PublicInvoicePage";
 import { PaymentCompletePage } from "../pages/PaymentCompletePage";
+import { SettingsPage } from "../pages/SettingsPage"
+import { NotFoundPage } from "../pages/NotFoundPage"
+import { LandingPage } from "../pages/LandingPage"
 
-// ...inside <Routes>, outside the RequireAuth/AppShell nesting:
+
 
 
 export const AppRoutes = () => {
     return (
         <Routes>
+            <Route element={<LandingPage/>} path="/"/>
             <Route element={<LoginPage/>} path="/login"/>
             <Route element={<RegisterPage/>} path="/register"/>
 
@@ -35,9 +39,9 @@ export const AppRoutes = () => {
                 <Route element={<DashboardPage/>} path="/dashboard"/>
                 <Route element={<ClientsPage/>} path="/clients"/>
                 <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
 
-
-                <Route element={<Navigate to="/dashboard" replace/>} path="*"/>
+                <Route path="*" element={<NotFoundPage />} />
                </Route>
             </Route>
 

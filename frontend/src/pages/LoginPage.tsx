@@ -35,7 +35,7 @@ export function LoginPage() {
         mutationFn: login,
         onSuccess: (data) => {
             setTokens(data.accessToken, data.refreshToken)
-            navigate("/")
+            navigate("/dashboard")
         }
     })
 

@@ -14,6 +14,7 @@ import { invoicesRouter } from "./modules/invoices/invoices.routes";
 import { publicRouter } from "./modules/public/public.routes";
 import { webhooksRouter } from "./modules/webhooks/webhooks.routes";
 import { dashboardRouter } from "./modules/dashboard/dashboard.routes";
+import { businessRouter } from "./modules/business/business.route";
 
 export function createApp() {
   const app = express();
@@ -50,6 +51,7 @@ app.use(express.json({ limit: "100kb" }));
   app.use("/api/v1/invoices", invoicesRouter)
   app.use("/api/v1/public", publicRouter);
   app.use("/api/v1/dashboard", dashboardRouter);
+app.use("/api/v1/business", businessRouter);
 
   app.use(notFound);
   app.use(errorHandler);
