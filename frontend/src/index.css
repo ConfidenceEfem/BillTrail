@@ -8,4 +8,12 @@
   --color-brand-600: #534AB7;
   --color-brand-800: #3C3489;
   --color-brand-900: #26215C;
+
+  .montserrat-<uniquifier> {
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: <weight>;
+  font-style: normal;
 }
+}
+

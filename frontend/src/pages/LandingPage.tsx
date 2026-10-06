@@ -18,9 +18,11 @@ const features = [
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white font-['Montserrat']">
       <nav className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
         {/* <p className="text-lg font-medium text-brand-800">BillTrail</p> */}
+       
+       
         <img className="w-[180px] h-[80px] object-cover" src="/logo.png"/>
         <div className="flex items-center gap-4">
           <Link to="/login" className="text-sm text-gray-600 font-medium">
@@ -40,7 +42,7 @@ export function LandingPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="text-4xl sm:text-5xl font-medium text-gray-900 mb-5 leading-tight"
+          className="text-4xl sm:text-5xl font-semibold text-gray-900 mb-5 leading-tight "
         >
           Invoicing and payments,
           <br />
@@ -50,7 +52,7 @@ export function LandingPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="text-gray-500 text-lg mb-8 max-w-xl mx-auto"
+          className="text-gray-500 text-[16px] mb-8 max-w-xl mx-auto"
         >
           Create professional invoices, send them to your clients, and get paid online —
           with a dashboard that shows you exactly where your money is.
@@ -81,15 +83,15 @@ export function LandingPage() {
               className="bg-gray-50 rounded-2xl p-6"
             >
               <h3 className="text-base font-medium text-gray-900 mb-2">{feature.title}</h3>
-              <p className="text-sm text-gray-500">{feature.description}</p>
+              <p className="text-[13px] text-gray-500">{feature.description}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      <footer className="border-t border-gray-100 py-8">
+      {/* <footer className="border-t border-gray-100 py-8">
         <p className="text-center text-sm text-gray-400">BillTrail</p>
-      </footer>
+      </footer> */}
     </div>
   );
 }
