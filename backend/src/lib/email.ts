@@ -1,8 +1,7 @@
-import { Resend } from "resend";
 import { env, isProduction } from "../config/env";
 import { logger } from "../config/logger";
 
-const resend = new Resend(env.RESEND_API_KEY);
+const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
 type SendEmailInput = {
   to: string;
@@ -10,30 +9,32 @@ type SendEmailInput = {
   html: string;
 };
 
-/**
- * The ONE place the app sends email. Every other file calls this function —
- * none of them know or care whether the underlying provider is Resend,
- * something else, or (in tests) nothing at all.
- */
+
 export async function sendEmail(input: SendEmailInput) {
   if (env.NODE_ENV === "test") {
-    // Never make a real network call to a real email provider during
-    // automated tests — that would be slow, flaky (depends on Resend being
-    // up), and could genuinely spam a real inbox on every test run.
     logger.info({ to: input.to, subject: input.subject }, "Email suppressed in test environment");
     return;
   }
 
-  const result = await resend.emails.send({
-    from: env.EMAIL_FROM,
-    to: input.to,
-    subject: input.subject,
-    html: input.html,
+  const res = await fetch(BREVO_API_URL, {
+    method: "POST",
+    headers: {
+      "api-key": env.BREVO_API_KEY,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      sender: { name: env.EMAIL_FROM_NAME, email: env.EMAIL_FROM_ADDRESS },
+      to: [{ email: input.to }],
+      subject: input.subject,
+      htmlContent: input.html,
+    }),
   });
 
-  if (result.error) {
-    logger.error({ err: result.error, to: input.to }, "Failed to send email");
+  if (!res.ok) {
+    const errorBody = await res.text();
+    logger.error({ status: res.status, body: errorBody, to: input.to }, "Failed to send email");
     if (isProduction) return;
-    throw new Error(`Failed to send email: ${result.error.message}`);
+    throw new Error(`Failed to send email: ${res.status} ${errorBody}`);
   }
 }

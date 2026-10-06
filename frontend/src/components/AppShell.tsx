@@ -5,6 +5,7 @@ const navItems = [
   { to: "/dashboard", label: "Dashboard" },
   { to: "/clients", label: "Clients" },
   { to: "/invoices", label: "Invoices" },
+  { to: "/recurring-invoices", label: "Recurring" },
   { to: "/settings", label: "Settings" },
 ];
 

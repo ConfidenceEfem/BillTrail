@@ -16,6 +16,7 @@ import { PaymentCompletePage } from "../pages/PaymentCompletePage";
 import { SettingsPage } from "../pages/SettingsPage"
 import { NotFoundPage } from "../pages/NotFoundPage"
 import { LandingPage } from "../pages/LandingPage"
+import { RecurringInvoicesPage } from "../pages/RecurringInvoicesPage"
 
 
 
@@ -39,6 +40,7 @@ export const AppRoutes = () => {
                 <Route element={<DashboardPage/>} path="/dashboard"/>
                 <Route element={<ClientsPage/>} path="/clients"/>
                 <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
+                <Route path="/recurring-invoices" element={<RecurringInvoicesPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
 
                 <Route path="*" element={<NotFoundPage />} />

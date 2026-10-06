@@ -12,8 +12,9 @@ const envSchema = z.object({
 JWT_REFRESH_EXPIRES_IN: z.string().default("30d"),
   DATABASE_URL: z.url("DATABASE_URL must be a valid connection string"),
  PAYSTACK_SECRET_KEY: z.string().min(1, "PAYSTACK_SECRET_KEY is required"),
- RESEND_API_KEY: z.string().min(1, "RESEND_API_KEY is required"),
-EMAIL_FROM: z.string().min(1, "EMAIL_FROM is required"),
+BREVO_API_KEY: z.string().min(1, "BREVO_API_KEY is required"),
+EMAIL_FROM_ADDRESS: z.string().email("EMAIL_FROM_ADDRESS must be a valid email"),
+EMAIL_FROM_NAME: z.string().min(1).default("BillTrail"),
 FRONTEND_URL: z.string().url().default("http://localhost:5173"),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
   CORS_ORIGIN: z
