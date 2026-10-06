@@ -15,6 +15,7 @@ import { publicRouter } from "./modules/public/public.routes";
 import { webhooksRouter } from "./modules/webhooks/webhooks.routes";
 import { dashboardRouter } from "./modules/dashboard/dashboard.routes";
 import { businessRouter } from "./modules/business/business.route";
+import { recurringInvoicesRouter } from "./modules/recurring-invoices/recurring-invoices.routes";
 
 export function createApp() {
   const app = express();
@@ -53,6 +54,7 @@ app.use(express.json({ limit: "100kb" }));
   app.use("/api/v1/public", publicRouter);
   app.use("/api/v1/dashboard", dashboardRouter);
 app.use("/api/v1/business", businessRouter);
+app.use("/api/v1/recurring-invoices", recurringInvoicesRouter)
 
   app.use(notFound);
   app.use(errorHandler);

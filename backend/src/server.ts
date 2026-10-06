@@ -1,11 +1,13 @@
 import { createApp } from "./app";
 import { env } from "./config/env";
 import { logger } from "./config/logger";
+import { startScheduledJobs } from "./lib/scheduler";
 
 const app = createApp();
 
 const server = app.listen(env.PORT, () => {
   logger.info(`BillTrail API listening on port ${env.PORT} (${env.NODE_ENV})`);
+    startScheduledJobs();
 });
 
 

@@ -45,3 +45,21 @@ export function invoiceSentEmailHtml(params: {
     </div>
   `;
 }
+
+export function overdueReminderEmailHtml(params: {
+  businessName: string;
+  invoiceNumber: string;
+  totalFormatted: string;
+  dueDateFormatted: string;
+  payUrl: string;
+}) {
+  return `
+    <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+      <h2>Reminder: Invoice ${params.invoiceNumber} is overdue</h2>
+      <p>This invoice from ${params.businessName} for <strong>${params.totalFormatted}</strong> was due on ${params.dueDateFormatted} and hasn't been paid yet.</p>
+      <a href="${params.payUrl}" style="display:inline-block; padding:12px 24px; background:#111; color:#fff; text-decoration:none; border-radius:6px;">
+        Pay now
+      </a>
+    </div>
+  `;
+}

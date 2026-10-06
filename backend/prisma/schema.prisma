@@ -70,6 +70,7 @@ model Business {
 
   clients  Client[]
   invoices Invoice[]
+  recurringInvoices RecurringInvoice[]
 
   @@map("businesses")
 }
@@ -86,6 +87,7 @@ model Client {
   updatedAt  DateTime  @updatedAt
 
   invoices Invoice[]
+  recurringInvoices RecurringInvoice[]
 
   // The same client email can exist for two different businesses, but not
   // twice for the SAME business.
@@ -114,7 +116,7 @@ model Invoice {
 
   issueDate DateTime
   dueDate   DateTime
-
+ lastReminderSentAt DateTime?
   publicToken String @unique @default(uuid())
 
   sentAt      DateTime?
@@ -128,6 +130,9 @@ model Invoice {
 
   items    InvoiceItem[]
   payments Payment[]
+
+  recurringInvoiceId String?
+recurringInvoice   RecurringInvoice? @relation(fields: [recurringInvoiceId], references: [id], onDelete: SetNull)
 
   // Invoice numbers (e.g. INV-0001) must be unique per business, not globally.
   @@unique([businessId, number])
@@ -174,8 +179,51 @@ model WebhookEvent {
   processedAt DateTime?
   createdAt   DateTime  @default(now())
 
-  // The core of idempotency: the database itself refuses a duplicate event ID
-  // from the same provider, even if two requests arrive at the exact same time.
   @@unique([provider, eventId])
   @@map("webhook_events")
+}
+
+enum RecurringFrequency {
+  WEEKLY
+  MONTHLY
+}
+
+model RecurringInvoice {
+  id         String   @id @default(uuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  clientId   String
+  client     Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  frequency RecurringFrequency
+  taxRateBps     Int @default(0)
+  discountAmount Int @default(0)
+
+  startDate   DateTime
+  nextRunDate DateTime
+  endDate     DateTime?
+  autoSend    Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  notes       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items            RecurringInvoiceItem[]
+  generatedInvoices Invoice[]
+
+  @@index([businessId])
+  @@index([nextRunDate, isActive])
+  @@map("recurring_invoices")
+}
+
+model RecurringInvoiceItem {
+  id                 String           @id @default(uuid())
+  recurringInvoiceId String
+  recurringInvoice   RecurringInvoice @relation(fields: [recurringInvoiceId], references: [id], onDelete: Cascade)
+  description        String
+  quantity           Int
+  unitPrice          Int
+
+  @@map("recurring_invoice_items")
 }
