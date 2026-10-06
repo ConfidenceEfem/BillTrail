@@ -20,7 +20,8 @@ export function createApp() {
   const app = express();
 
   app.use(helmet());
-  app.use(cors({ origin: env.CORS_ORIGIGIN, credentials: true }));
+  app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
+  logger.info({ corsOrigin: env.CORS_ORIGIN }, "CORS configured with origins");
   app.use(
     pinoHttp({
       logger,

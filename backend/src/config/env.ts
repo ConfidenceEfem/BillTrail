@@ -16,7 +16,7 @@ JWT_REFRESH_EXPIRES_IN: z.string().default("30d"),
 EMAIL_FROM: z.string().min(1, "EMAIL_FROM is required"),
 FRONTEND_URL: z.string().url().default("http://localhost:5173"),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
-  CORS_ORIGIGIN: z
+  CORS_ORIGIN: z
     .string()
     .default("http://localhost:5173")
     .transform((value) =>
