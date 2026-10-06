@@ -20,7 +20,8 @@ export function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
       <nav className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
-        <p className="text-lg font-medium text-brand-800">BillTrail</p>
+        {/* <p className="text-lg font-medium text-brand-800">BillTrail</p> */}
+        <img className="w-[180px] h-[80px] object-cover" src="/logo.png"/>
         <div className="flex items-center gap-4">
           <Link to="/login" className="text-sm text-gray-600 font-medium">
             Log in

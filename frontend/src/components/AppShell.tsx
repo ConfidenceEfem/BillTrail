@@ -15,7 +15,8 @@ export function AppShell() {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <aside className="w-56 bg-white border-r border-gray-200 flex flex-col p-4">
-        <p className="text-lg font-medium text-brand-800 mb-8">BillTrail</p>
+        {/* <p className="text-lg font-medium text-brand-800 mb-8">BillTrail</p> */}
+         <img className="w-[150px] h-[80px] object-cover" src="/logo.png"/>
         <nav className="flex flex-col gap-1 flex-1">
           {navItems.map((item) => (
             <NavLink
