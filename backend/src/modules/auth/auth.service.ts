@@ -147,8 +147,7 @@ export async function rotateRefreshToken(rawToken: string) {
     include: { user: { include: { business: true } } },
   });
 
-  // Same vague error for "doesn't exist", "expired", and "revoked" — an
-  // attacker probing stolen or guessed tokens learns nothing from the response.
+
   const invalid = () => new UnauthorizedError("Invalid or expired refresh token");
 
   if (!stored || stored.revokedAt || stored.expiresAt < new Date()) {
@@ -157,11 +156,6 @@ export async function rotateRefreshToken(rawToken: string) {
   if (!stored.user.business) {
     throw new Error(`User ${stored.userId} has no associated business`);
   }
-
-  // Rotation: the old token is revoked the moment it's used, and a brand new
-  // one is issued. If a stolen refresh token is ever used by an attacker AND
-  // later by the real user (or vice versa), the second use fails outright,
-  // which is a strong signal something is wrong — not just a nice-to-have.
   await prisma.refreshToken.update({
     where: { id: stored.id },
     data: { revokedAt: new Date() },
@@ -175,9 +169,7 @@ export async function rotateRefreshToken(rawToken: string) {
 
 export async function revokeRefreshToken(rawToken: string) {
   const tokenHash = hashToken(rawToken);
-  // updateMany, not update: if the token doesn't exist (already invalid, or
-  // never existed), logout should still succeed quietly — there's nothing
-  // meaningful to tell the caller either way.
+
   await prisma.refreshToken.updateMany({
     where: { tokenHash, revokedAt: null },
     data: { revokedAt: new Date() },
