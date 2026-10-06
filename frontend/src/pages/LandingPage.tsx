@@ -54,8 +54,8 @@ export function LandingPage() {
           transition={{ duration: 0.4, delay: 0.1 }}
           className="text-gray-500 text-[16px] mb-8 max-w-xl mx-auto"
         >
-          Create professional invoices, send them to your clients, and get paid online —
-          with a dashboard that shows you exactly where your money is.
+          Create professional invoices, send them to your clients, and get paid online.
+           Flexible dashboard that shows you exactly where your money is.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 12 }}
