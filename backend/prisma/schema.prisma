@@ -71,6 +71,8 @@ model Business {
   clients  Client[]
   invoices Invoice[]
   recurringInvoices RecurringInvoice[]
+  bankAccounts BankAccount[]
+withdrawals  Withdrawal[]
 
   @@map("businesses")
 }
@@ -226,4 +228,48 @@ model RecurringInvoiceItem {
   unitPrice          Int
 
   @@map("recurring_invoice_items")
+}
+
+
+enum WithdrawalStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+}
+
+model BankAccount {
+  id            String   @id @default(uuid())
+  businessId    String
+  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  accountNumber String
+  bankCode      String
+  bankName      String
+  accountName   String   // resolved from Paystack, never typed by hand
+  recipientCode String?  // Paystack transfer recipient code, created lazily on first use
+  isDefault     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  withdrawals Withdrawal[]
+
+  @@index([businessId])
+  @@map("bank_accounts")
+}
+
+model Withdrawal {
+  id                  String           @id @default(uuid())
+  businessId          String
+  business            Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  bankAccountId       String
+  bankAccount         BankAccount      @relation(fields: [bankAccountId], references: [id], onDelete: Restrict)
+  amount              Int              // kobo, always an integer, same rule as everywhere else
+  status              WithdrawalStatus @default(PENDING)
+  paystackTransferCode String?         @unique
+  paystackReference    String          @unique
+  failureReason        String?
+  createdAt             DateTime       @default(now())
+  completedAt            DateTime?
+
+  @@index([businessId])
+  @@map("withdrawals")
 }

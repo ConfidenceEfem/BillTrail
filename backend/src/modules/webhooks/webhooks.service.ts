@@ -1,11 +1,11 @@
 import { prisma } from "../../lib/prisma";
 
-type PaystackChargeSuccessEvent = {
+type PaystackEvent = {
   event: string;
   data: { reference: string; amount: number; status: string };
 };
 
-export async function processPaystackEvent(eventId: string, payload: PaystackChargeSuccessEvent) {
+export async function processPaystackEvent(eventId: string, payload: PaystackEvent) {
   try {
     await prisma.webhookEvent.create({
       data: { provider: "paystack", eventId, type: payload.event, payload: payload as object },
@@ -17,6 +17,26 @@ export async function processPaystackEvent(eventId: string, payload: PaystackCha
       return { alreadyProcessed: true };
     }
     throw err;
+  }
+
+  if (payload.event === "transfer.success" || payload.event === "transfer.failed") {
+    const withdrawal = await prisma.withdrawal.findUnique({
+      where: { paystackReference: payload.data.reference },
+    });
+
+    if (!withdrawal) {
+      return { alreadyProcessed: false, handled: false };
+    }
+
+    await prisma.withdrawal.update({
+      where: { id: withdrawal.id },
+      data:
+        payload.event === "transfer.success"
+          ? { status: "SUCCESS", completedAt: new Date() }
+          : { status: "FAILED", failureReason: "Transfer failed at Paystack" },
+    });
+
+    return { alreadyProcessed: false, handled: true };
   }
 
   if (payload.event !== "charge.success") {

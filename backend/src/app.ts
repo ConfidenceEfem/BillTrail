@@ -16,6 +16,8 @@ import { webhooksRouter } from "./modules/webhooks/webhooks.routes";
 import { dashboardRouter } from "./modules/dashboard/dashboard.routes";
 import { businessRouter } from "./modules/business/business.route";
 import { recurringInvoicesRouter } from "./modules/recurring-invoices/recurring-invoices.routes";
+import { bankAccountsRouter } from "./modules/withdrawals/bank-accounts.routes";
+import { withdrawalsRouter } from "./modules/withdrawals/withdrawals.routes";
 
 export function createApp() {
   const app = express();
@@ -55,6 +57,8 @@ app.use(express.json({ limit: "100kb" }));
   app.use("/api/v1/dashboard", dashboardRouter);
 app.use("/api/v1/business", businessRouter);
 app.use("/api/v1/recurring-invoices", recurringInvoicesRouter)
+app.use("/api/v1/bank-accounts", bankAccountsRouter);
+app.use("/api/v1/withdrawals", withdrawalsRouter);
 
   app.use(notFound);
   app.use(errorHandler);
