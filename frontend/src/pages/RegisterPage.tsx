@@ -7,6 +7,8 @@ import { registerBusiness } from "../api/auth";
 import { getErrorMessage } from "../lib/error";
 import { AuthSidePanel } from "../components/AuthSidePanel";
 import { PasswordInput } from "../components/PasswordInput";
+import { StatusIcon } from "../components/StatusIcon";
+import { MailCheck } from "lucide-react";
 
 const registerSchema = z.object({
   businessName: z.string().min(2, "Business name must be at least 2 characters"),
@@ -34,11 +36,12 @@ export function RegisterPage() {
 
           {mutation.isSuccess ? (
             <div className="text-center">
-              <h1 className="text-2xl font-semibold text-gray-900 mb-2">Check your email</h1>
-              <p className="text-sm text-gray-600">
-                We sent a verification link to your email address. Click it to activate your account.
-              </p>
-            </div>
+    <StatusIcon icon={MailCheck} tone="info" />
+    <h1 className="text-2xl font-semibold text-gray-900 mb-2">Check your email</h1>
+    <p className="text-sm text-gray-600">
+      We sent a verification link to your email address. Click it to activate your account.
+    </p>
+  </div>
           ) : (
             <>
               <h1 className="text-2xl font-semibold text-gray-900 mb-1">Create your account</h1>

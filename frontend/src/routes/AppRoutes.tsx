@@ -17,6 +17,7 @@ import { SettingsPage } from "../pages/SettingsPage"
 import { NotFoundPage } from "../pages/NotFoundPage"
 import { LandingPage } from "../pages/LandingPage"
 import { RecurringInvoicesPage } from "../pages/RecurringInvoicesPage"
+import { BalancePage } from "../pages/BalancePage"
 
 
 
@@ -42,6 +43,7 @@ export const AppRoutes = () => {
                 <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
                 <Route path="/recurring-invoices" element={<RecurringInvoicesPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/balance" element={<BalancePage />} />
 
                 <Route path="*" element={<NotFoundPage />} />
                </Route>
