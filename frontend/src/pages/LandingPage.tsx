@@ -18,7 +18,7 @@ const features = [
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-white font-['Montserrat']">
+   <div className="min-h-screen gradient-bg">
       <nav className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
         {/* <p className="text-lg font-medium text-brand-800">BillTrail</p> */}
        
@@ -89,9 +89,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* <footer className="border-t border-gray-100 py-8">
-        <p className="text-center text-sm text-gray-400">BillTrail</p>
-      </footer> */}
+
     </div>
   );
 }

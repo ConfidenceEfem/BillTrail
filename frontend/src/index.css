@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
 @theme {
+
+    --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+
+
   --color-brand-50: #EEEDFE;
   --color-brand-100: #CECBF6;
   --color-brand-200: #AFA9EC;
@@ -9,11 +13,30 @@
   --color-brand-800: #3C3489;
   --color-brand-900: #26215C;
 
-  .montserrat-<uniquifier> {
+  /* .montserrat-<uniquifier> {
   font-family: "Montserrat", sans-serif;
   font-optical-sizing: auto;
   font-weight: <weight>;
   font-style: normal;
-}
+} */
 }
 
+body {
+  font-family: var(--font-sans);
+}
+
+.gradient-bg {
+  background: linear-gradient(180deg, #ffffff 0%, #f6f4fd 65%, #ece7fb 100%);
+}
+
+.gradient-button {
+  background: linear-gradient(135deg, var(--color-accent-blue), var(--color-brand-600));
+  transition: filter 0.15s ease;
+}
+.gradient-button:hover {
+  filter: brightness(1.08);
+}
+.gradient-button:disabled {
+  filter: grayscale(0.3);
+  opacity: 0.6;
+}
