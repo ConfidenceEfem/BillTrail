@@ -4,6 +4,10 @@ import { z } from "zod";
 import type { Client } from "../api/clients";
 import { formatKobo } from "../lib/money";
 
+import { DeleteIcon, Trash } from "lucide-react";
+
+
+
 const lineItemSchema = z.object({
   description: z.string().min(1, "Required"),
   quantity: z.coerce.number().int().positive("Must be at least 1"),
@@ -79,35 +83,45 @@ const {
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Items</label>
         <div className="flex flex-col gap-3">
+      
           {fields.map((field, index) => (
-            <div key={field.id} className="flex gap-2 items-start">
-              <input
-                placeholder="Description"
-                {...register(`items.${index}.description`)}
-                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-              />
-              <input
-                type="number"
-                placeholder="Qty"
-                {...register(`items.${index}.quantity`)}
-                className="w-16 rounded-lg border border-gray-300 px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-              />
-              <input
-                type="number"
-                placeholder="Unit price"
-                {...register(`items.${index}.unitPriceNaira`)}
-                className="w-28 rounded-lg border border-gray-300 px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-              />
-              <button
-                type="button"
-                onClick={() => remove(index)}
-                disabled={fields.length === 1}
-                className="text-gray-400 hover:text-red-600 disabled:opacity-30 px-2 py-2"
-              >
-                &times;
-              </button>
-            </div>
-          ))}
+  <div key={field.id} className="border border-gray-200 rounded-lg p-3 flex flex-col gap-2">
+    <div className="flex items-center justify-between">
+      <span className="text-xs text-gray-400">Item {index + 1}</span>
+      <button
+        type="button"
+        onClick={() => remove(index)}
+        disabled={fields.length === 1}
+        className=" text-red-300 cursor-pointer hover:text-[red] disabled:opacity-30 text-sm"
+      >
+        <Trash />
+      </button>
+    </div>
+    <input
+      placeholder="Description"
+      {...register(`items.${index}.description`)}
+      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+    />
+    <div className="grid grid-cols-2 gap-2">
+      <div>
+        <label className="block text-xs text-gray-500 mb-1">Quantity</label>
+        <input
+          type="number"
+          {...register(`items.${index}.quantity`)}
+          className="w-full rounded-lg border border-gray-300 px-2 py-2 text-sm"
+        />
+      </div>
+      <div>
+        <label className="block text-xs text-gray-500 mb-1">Unit price (NGN)</label>
+        <input
+          type="number"
+          {...register(`items.${index}.unitPriceNaira`)}
+          className="w-full rounded-lg border border-gray-300 px-2 py-2 text-sm"
+        />
+      </div>
+    </div>
+  </div>
+))}
         </div>
         {errors.items && <p className="text-xs text-red-600 mt-1">{errors.items.message}</p>}
         <button

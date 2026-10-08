@@ -120,7 +120,7 @@ export function BalancePage() {
             <button
               type="submit"
               disabled={withdrawMutation.isPending}
-              className="gradient-button text-white rounded-lg py-2 text-sm font-medium"
+              className="inline-block bg-brand-600 text-white font-medium px-6 py-3 rounded-lg hover:bg-brand-800"
             >
               {withdrawMutation.isPending ? "Requesting..." : "Request withdrawal"}
             </button>
