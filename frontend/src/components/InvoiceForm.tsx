@@ -3,8 +3,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { Client } from "../api/clients";
 import { formatKobo } from "../lib/money";
+import { Trash } from "lucide-react";
 
-import { DeleteIcon, Trash } from "lucide-react";
 
 
 
